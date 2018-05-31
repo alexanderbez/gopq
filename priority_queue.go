@@ -34,6 +34,29 @@ func NewPriorityQueue() *PriorityQueue {
 	return pq
 }
 
+// Push adds a Sortable item to the priority queue.
+func (pq *PriorityQueue) Push(h Heapable) {
+	heap.Push(pq.queue, h)
+}
+
+// Pop removes a Sortable item from the priority queue with the highest
+// priority and returns it.
+func (pq *PriorityQueue) Pop() Heapable {
+	return heap.Pop(pq.queue).(Heapable)
+}
+
+// Size returns the size of the priority queue.
+func (pq *PriorityQueue) Size() int {
+	return pq.queue.Len()
+}
+
+// Update re-establishes the priority queue ordering after the Heapable element
+// has changed its value. It is up to the caller to update the element
+// accordingly.
+func (pq *PriorityQueue) Update(h Heapable) {
+	heap.Fix(pq.queue, h.Index())
+}
+
 // Len implements the sort.Interface.
 func (it items) Len() int {
 	return len(it)
@@ -51,22 +74,6 @@ func (it items) Swap(i, j int) {
 	it[j].SetIndex(j)
 }
 
-// Push adds a Sortable item to the priority queue.
-func (pq *PriorityQueue) Push(s Heapable) {
-	heap.Push(pq.queue, s)
-}
-
-// Pop removes a Sortable item from the priority queue with the highest
-// priority and returns it.
-func (pq *PriorityQueue) Pop() Heapable {
-	return heap.Pop(pq.queue).(Heapable)
-}
-
-// Size returns the size of the priority queue.
-func (pq *PriorityQueue) Size() int {
-	return pq.queue.Len()
-}
-
 // Push implements the heap interface.
 func (it *items) Push(x interface{}) {
 	n := len(*it)
@@ -80,8 +87,8 @@ func (it *items) Pop() interface{} {
 	old := *it
 	n := len(old)
 	item := old[n-1]
-	oldIdx := item.Index()
-	item.SetIndex(oldIdx - 1)
+	// oldIdx := item.Index()
+	// item.SetIndex(oldIdx - 1)
 	*it = old[0 : n-1]
 
 	return item

@@ -1,12 +1,12 @@
 package queue
 
 import (
-	"sort"
+	"reflect"
 	"testing"
 )
 
 type testSortable struct {
-	priority, index int
+	priority, index, value int
 }
 
 func (ts *testSortable) Priority(other interface{}) bool {
@@ -26,28 +26,127 @@ func (ts *testSortable) SetIndex(i int) {
 }
 
 func TestPriorityQueue(t *testing.T) {
-	pq := NewPriorityQueue()
-	l := 10
-	e := make([]int, 0, l)
-
-	for i := 0; i < l; i++ {
-		p := (i + 1) * 5
-		e = append(e, p)
-
-		pq.Push(&testSortable{priority: p, index: i})
+	testCases := []struct {
+		set             []*testSortable
+		expectedLength  int
+		expectedResults []*testSortable
+	}{
+		{
+			set:             []*testSortable{},
+			expectedLength:  0,
+			expectedResults: []*testSortable{},
+		},
+		{
+			set: []*testSortable{
+				&testSortable{priority: 1, index: 0, value: 0},
+			},
+			expectedLength: 1,
+			expectedResults: []*testSortable{
+				&testSortable{priority: 1, index: 0, value: 0},
+			},
+		},
+		{
+			set: []*testSortable{
+				&testSortable{priority: 10, index: 0, value: 0},
+				&testSortable{priority: 8, index: 1, value: 1},
+				&testSortable{priority: 12, index: 2, value: 2},
+				&testSortable{priority: 9, index: 3, value: 3},
+			},
+			expectedLength: 4,
+			expectedResults: []*testSortable{
+				&testSortable{priority: 12, index: 3, value: 2},
+				&testSortable{priority: 10, index: 2, value: 0},
+				&testSortable{priority: 9, index: 1, value: 3},
+				&testSortable{priority: 8, index: 0, value: 1},
+			},
+		},
 	}
 
-	sort.Ints(e)
+	for _, tc := range testCases {
+		pq := NewPriorityQueue()
 
-	for i := l - 1; i >= 0; i-- {
-		r := pq.Pop()
+		for _, e := range tc.set {
+			pq.Push(e)
+		}
 
-		if r.(*testSortable).priority != e[i] {
-			t.Errorf("incorrect result: expected: %v, got: %v", e[i], r.(*testSortable).priority)
+		if pq.Size() != tc.expectedLength {
+			t.Errorf("incorrect result: expected: %v, got: %v", tc.expectedLength, pq.Size())
+		}
+
+		j := 0
+		for j < pq.Size() {
+			e := pq.Pop()
+
+			if !reflect.DeepEqual(e, tc.expectedResults[j]) {
+				t.Errorf("incorrect result: expected: %v, got: %v", tc.expectedResults[j], e)
+			}
+
+			j++
 		}
 	}
+}
 
-	if pq.Size() != 0 {
-		t.Errorf("incorrect result: expected: %v, got: %v", 0, pq.Size())
+func TestPriorityQueueUpdate(t *testing.T) {
+	testCases := []struct {
+		set             []*testSortable
+		updateIndex     int
+		updatePriority  int
+		expectedLength  int
+		expectedResults []*testSortable
+	}{
+		{
+			set: []*testSortable{
+				&testSortable{priority: 1, index: 0, value: 0},
+			},
+			updateIndex:    0,
+			updatePriority: 10,
+			expectedLength: 1,
+			expectedResults: []*testSortable{
+				&testSortable{priority: 10, index: 0, value: 0},
+			},
+		},
+		{
+			set: []*testSortable{
+				&testSortable{priority: 10, index: 0, value: 0},
+				&testSortable{priority: 8, index: 1, value: 1},
+				&testSortable{priority: 12, index: 2, value: 2},
+				&testSortable{priority: 9, index: 3, value: 3},
+			},
+			updateIndex:    1,
+			updatePriority: 20,
+			expectedLength: 4,
+			expectedResults: []*testSortable{
+				&testSortable{priority: 20, index: 3, value: 1},
+				&testSortable{priority: 12, index: 2, value: 2},
+				&testSortable{priority: 10, index: 1, value: 0},
+				&testSortable{priority: 9, index: 0, value: 3},
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		pq := NewPriorityQueue()
+
+		for _, e := range tc.set {
+			pq.Push(e)
+		}
+
+		tc.set[tc.updateIndex].priority = tc.updatePriority
+		pq.Update(tc.set[tc.updateIndex])
+
+		if pq.Size() != tc.expectedLength {
+			t.Errorf("incorrect result: expected: %v, got: %v", tc.expectedLength, pq.Size())
+		}
+
+		j := 0
+		for j < pq.Size() {
+			e := pq.Pop()
+
+			if !reflect.DeepEqual(e, tc.expectedResults[j]) {
+				t.Errorf("incorrect result: expected: %v, got: %v", tc.expectedResults[j], e)
+			}
+
+			j++
+		}
 	}
 }
