@@ -1,6 +1,10 @@
 package queue
 
-import "container/heap"
+import (
+	"container/heap"
+	"errors"
+	"fmt"
+)
 
 type (
 	// Heapable reflects an interface that an item must implement in order to
@@ -34,15 +38,23 @@ func NewPriorityQueue() *PriorityQueue {
 	return pq
 }
 
-// Push adds a Sortable item to the priority queue.
+// Push adds a Sortable item to the priority queue. The complexity is
+// logarithmic.
 func (pq *PriorityQueue) Push(h Heapable) {
 	heap.Push(pq.queue, h)
 }
 
 // Pop removes a Sortable item from the priority queue with the highest
-// priority and returns it.
-func (pq *PriorityQueue) Pop() Heapable {
-	return heap.Pop(pq.queue).(Heapable)
+// priority and returns it. The complexity is logarithmic. If the index is
+// beyond the size of the priority queue, an error is returned.
+func (pq *PriorityQueue) Pop() (res Heapable, err error) {
+	if pq.Size() > 0 {
+		res = heap.Pop(pq.queue).(Heapable)
+	} else {
+		err = errors.New("cannot pop from an empty priority queue")
+	}
+
+	return
 }
 
 // Size returns the size of the priority queue.
@@ -52,9 +64,30 @@ func (pq *PriorityQueue) Size() int {
 
 // Update re-establishes the priority queue ordering after the Heapable element
 // has changed its value. It is up to the caller to update the element
-// accordingly.
-func (pq *PriorityQueue) Update(h Heapable) {
-	heap.Fix(pq.queue, h.Index())
+// accordingly. The complexity is logarithmic. If the index is beyond the size
+// of the priority queue, an error is returned.
+func (pq *PriorityQueue) Update(h Heapable) (err error) {
+	if h.Index() < pq.Size() {
+		heap.Fix(pq.queue, h.Index())
+	} else {
+		err = fmt.Errorf("invalid element index: %d", h.Index())
+	}
+
+	return
+}
+
+// Remove removes a Heapable item from the priority queue. The item is
+// retrieved by fetching it's index. Items are then "fixed" into their
+// appropriate order once the item is removed. The complexity is logarithmic.
+// If the index is beyond the size of the priority queue, an error is returned.
+func (pq *PriorityQueue) Remove(h Heapable) (err error) {
+	if h.Index() < pq.Size() {
+		heap.Remove(pq.queue, h.Index())
+	} else {
+		err = fmt.Errorf("invalid element index: %d", h.Index())
+	}
+
+	return
 }
 
 // Len implements the sort.Interface.
@@ -87,8 +120,6 @@ func (it *items) Pop() interface{} {
 	old := *it
 	n := len(old)
 	item := old[n-1]
-	// oldIdx := item.Index()
-	// item.SetIndex(oldIdx - 1)
 	*it = old[0 : n-1]
 
 	return item
