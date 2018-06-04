@@ -17,8 +17,8 @@ type (
 		SetIndex(i int)
 	}
 
-	// items is the internal container for a priority queue. It's implementation
-	// should not be exposed publically.
+	// items is the internal container of Heapable elements for a priority
+	// queue. It's implementation should not be exposed publically.
 	items []Heapable
 
 	// PriorityQueue implements a priority queue of Heapable items. Each item
