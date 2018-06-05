@@ -19,8 +19,8 @@ type myType struct {
 	priority int
 }
 
-func (th *testHeapable) Index() (i int) { return }
-func (th *testHeapable) SetIndex(_ int) {}
+func (mt *myType) Index() (i int) { return }
+func (mt *myType) SetIndex(_ int) {}
 
 func (mt *myType) Priority(other interface{}) bool {
 	if t, ok := other.(*myType); ok {
