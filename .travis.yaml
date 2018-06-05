@@ -1,9 +1,8 @@
 language: go
-dist: trusty
-matrix:
-  include:
-    - go: 1.7.5
-    - go: 1.8.1
-    - go: tip
-  allow_failures:
-    - go: tip
+
+go:
+  - "1.x"
+  - "1.8"
+  - "1.10.x"
+  - master
+  
