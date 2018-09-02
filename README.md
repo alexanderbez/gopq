@@ -2,6 +2,7 @@
 
 [![GoDoc](https://godoc.org/github.com/alexanderbez/gopq?status.svg)](https://godoc.org/github.com/alexanderbez/gopq)
 [![Build Status](https://travis-ci.org/alexanderbez/gopq.svg?branch=master)](https://travis-ci.org/alexanderbez/gopq)
+[![Go Report Card](https://goreportcard.com/badge/github.com/alexanderbez/gopq)](https://goreportcard.com/report/github.com/alexanderbez/gopq)
 
 A simple and generic priority queue implementation in Golang.
 
